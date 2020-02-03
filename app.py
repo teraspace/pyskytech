@@ -32,18 +32,17 @@ def process_datetime(dt):
 import cx_Oracle
 import pandas as pd
 from pandas import DataFrame
-from pandas import TimeGrouper
+
 from pandas import Series
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
+
 import datetime
-import seaborn as sns
+
 #import plotly
 #plotly.tools.set_credentials_file(username='carlosman79', api_key='hr7364U5bGLVEEsqNZmr')
 #import plotly.plotly as py
 #import plotly.graph_objs as go
-from pandas import TimeGrouper
+
 
 cx_Oracle.clientversion()
 df_translations = []
@@ -54,7 +53,7 @@ df_translations = []
 
 def query_translator(locale):
     print('query_translator')
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech")
+    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
     sql = "SELECT * from translations where locale = :locale"
     curs = conn.cursor()
     curs.prepare(sql)
@@ -79,9 +78,9 @@ def query_translator(locale):
 
 def query_translator_words(locale,words):
     print('query_translator_words')
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech")
+    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
     words =  str(words).replace('[','').replace(']','').replace('"', '\'')  
-    sql = "SELECT * from translations where locale = :locale and key in (" + words + ")"
+    sql = "SELECT distinct key, value from translations where locale = :locale and key in (" + words + ")"
 
     curs = conn.cursor()
     curs.prepare(sql)
@@ -129,7 +128,7 @@ def translate(key, words):
 
 
 def query_incidents(args):
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech")
+    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
     plates =  args.get('plates').replace('[','').replace(']','').replace('"', '\'')  
     
     
@@ -174,7 +173,7 @@ def query_incidents(args):
 
 
 def query_historics(args):
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech")
+    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
     plates =  args.get('plates').replace('[','').replace(']','').replace('"', '\'')  
     
     
@@ -260,7 +259,8 @@ def history_events():
     column_names = []
 
     for c in column_keys:
-        column_names.append(translate(c, translaters))
+        print (translate(c, translaters))
+        column_names.append(translate(c.lower(), translaters))
     
     print(column_names)
     data_report = data_report[column_keys]
@@ -270,9 +270,9 @@ def history_events():
     owner_id = request.args.to_dict(flat=True).get('owner_id')
     
         
-    data_report.to_csv(r'/home/skytech/pySkytech/history_events'+owner_id+'.csv', index=False)
+    data_report.to_csv(r'/home/geotech-user/skytech_core/pyskytech/history_events'+owner_id+'.csv', index=False)
 
-    return send_from_directory('/home/skytech/pySkytech',
+    return send_from_directory('/home/geotech-user/skytech_core/pyskytech',
                                'history_events'+owner_id+'.csv', as_attachment=True)
 if (__name__ == '__main__'):
     app.run(host='0.0.0.0')
