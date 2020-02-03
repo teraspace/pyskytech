@@ -270,9 +270,9 @@ def history_events():
     owner_id = request.args.to_dict(flat=True).get('owner_id')
     
         
-    data_report.to_csv(r'/home/geotech-user/skytech_core/pyskytech/history_events'+owner_id+'.csv', index=False)
+    data_report.to_csv(r'/home/skytech/pySkytech'+owner_id+'.csv', index=False)
 
-    return send_from_directory('/home/geotech-user/skytech_core/pyskytech',
+    return send_from_directory('/home/skytech/pySkytech',
                                'history_events'+owner_id+'.csv', as_attachment=True)
 if (__name__ == '__main__'):
     app.run(host='0.0.0.0')
