@@ -37,7 +37,7 @@ from pandas import Series
 import numpy as np
 
 import datetime
-
+import os
 #import plotly
 #plotly.tools.set_credentials_file(username='carlosman79', api_key='hr7364U5bGLVEEsqNZmr')
 #import plotly.plotly as py
@@ -47,7 +47,23 @@ import datetime
 cx_Oracle.clientversion()
 df_translations = []
 
-
+def query_user():
+    access_token = request.args.to_dict(flat=True).get('access_token')
+    print (access_token)
+    print('query_user')
+    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
+    sql = "select locale from users u join oauth_access_tokens o on u.id=o.resource_owner_id where o.token = :token"
+    curs = conn.cursor()
+    curs.prepare(sql)
+    curs.execute(None, {'token': access_token})
+    df_user = DataFrame(curs.fetchall())
+    c = 0
+    column_names = []
+    for column in curs.description:
+        column_names.append(curs.description[c][0])
+        c += 1
+    df_user.columns = column_names
+    return df_user.LOCALE.item()
 # In[4]:
 
 
@@ -57,6 +73,11 @@ def query_translator(locale):
     sql = "SELECT * from translations where locale = :locale"
     curs = conn.cursor()
     curs.prepare(sql)
+    try:
+        locale = query_user()
+    except:
+        locale = 'es'
+    print (locale)
     curs.execute(None, {'locale': locale})
     df_translator = DataFrame(curs.fetchall())
     
@@ -84,6 +105,11 @@ def query_translator_words(locale,words):
 
     curs = conn.cursor()
     curs.prepare(sql)
+    #try:
+    locale = query_user()
+    #except:
+    #    locale = 'es'
+    print(locale)
     curs.execute(None, {'locale': locale})
     df_translator = DataFrame(curs.fetchall())
     
@@ -116,12 +142,6 @@ def translate(key, words):
         return df_found.VALUE.item()
     except:
         return key
-
-
-# In[7]:
-
-
-'soat'.lower()
 
 
 # In[13]:
@@ -254,7 +274,6 @@ def history_events():
     translaters = data_report['EVENT_NAME'].unique().tolist() + [x.lower() for x in column_keys]
     print (translaters)
     data_report['EVENT_NAME'] = data_report['EVENT_NAME'].apply(lambda x: translate(x, translaters))
-    #data_incidents['EVENT_NAME'] = data_incidents['EVENT_NAME'].apply(lambda x: translate(x))
     
     column_names = []
 
@@ -268,12 +287,12 @@ def history_events():
     #data_incidents = data_historics[column_keys]
     #data_incidents.columns = column_names
     owner_id = request.args.to_dict(flat=True).get('owner_id')
-    
-        
-    data_report.to_csv(r'/home/skytech/pySkytech'+owner_id+'.csv', index=False)
+    full_path = os.path.dirname(os.path.abspath(__file__))
+    print (full_path)
+    #os.remove(full_path+'/history_events'+owner_id+'.csv')     
+    data_report.to_csv(full_path+'/history_events'+owner_id+'.csv', index=False)
 
-    return send_from_directory('/home/skytech/pySkytech',
-                               'history_events'+owner_id+'.csv', as_attachment=True)
+    return send_from_directory(full_path, 'history_events'+owner_id+'.csv', as_attachment=True)
 if (__name__ == '__main__'):
     app.run(host='0.0.0.0')
 
