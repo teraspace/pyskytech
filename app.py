@@ -80,7 +80,7 @@ def query_translator_words(locale,words):
     print('query_translator_words')
     conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
     words =  str(words).replace('[','').replace(']','').replace('"', '\'')  
-    sql = "SELECT distinct key, value from translations where locale = :locale and key in (" + words + ")"
+    sql = "SELECT  key, value from translations where locale = :locale and key in (" + words + ")"
 
     curs = conn.cursor()
     curs.prepare(sql)
