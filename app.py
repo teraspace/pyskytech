@@ -50,9 +50,9 @@ def history_events():
     owner_id = str(user.owner_id)
     full_path = os.path.dirname(os.path.abspath(__file__))
 
-    data_report.to_excel(full_path+'/history_events'+owner_id+'.xlsx', index=False)
+    data_report.to_csv(full_path+'/history_events'+owner_id+'.csv', index=False)
 
-    return send_from_directory(full_path, 'history_events'+owner_id+'.xlsx', as_attachment=True)
+    return send_from_directory(full_path, 'history_events'+owner_id+'.csv', as_attachment=True)
 
 
 @app.route('/data_science/history_cathodics_recti')
