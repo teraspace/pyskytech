@@ -49,7 +49,32 @@ def history_events():
     return send_from_directory(full_path, 'history_events'+owner_id+'.csv', as_attachment=True)
 
 
+@app.route('/data_science/history_cathodics_recti')
+def history_cathodics_recti():
+    print ('hello history_cathodics_recti')
+    req = request.args.to_dict(flat=True)
+    user = query_user(req)
+    cathodics_recti = query_recti(req)
+    data_report = pd.concat([cathodics_recti])
+    data_report = data_report.sort_index()
+    data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
+    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
+    translaters = [x.lower() for x in column_keys]
 
+    
+    column_names = []
+
+    for c in column_keys:
+        column_names.append(translate(c, translaters, user.locale))
+    
+    data_report = data_report[column_keys]
+    data_report.columns = column_names
+    owner_id = str(user.owner_id)
+
+    full_path = os.path.dirname(os.path.abspath(__file__))    
+    data_report.to_csv(full_path+'/history_cathodics_recti'+owner_id+'.csv', index=False)
+
+    return send_from_directory(full_path, 'history_cathodics_recti'+owner_id+'.csv', as_attachment=True)
 
 @app.route('/data_science/history_cathodics_thermo')
 def history_cathodics_thermo():
