@@ -13,7 +13,13 @@ from flask import Flask
 app = Flask(__name__)
 from flask import request
 from flask import send_from_directory
+from pyexcelerate import Workbook
 
+def df_to_excel(df, path, sheet_name='Sheet 1'):
+    data = [df.columns.tolist(), ] + df.values.tolist()
+    wb = Workbook()
+    wb.new_sheet(sheet_name, data=data)
+    wb.save(path)
 
 @app.route('/')
 def index():
@@ -97,8 +103,10 @@ def history_cathodics_thermo():
     data_report = data_report[column_keys]
     data_report.columns = column_names
     owner_id = str(user.owner_id)
-
+    print ('creating file')
     full_path = os.path.dirname(os.path.abspath(__file__))    
+   # df_to_excel(data_report,full_path+'/history_cathodics_thermo'+owner_id+'.xlsx',sheet_name='history_cathodics_thermo')
+    print ('created file')
     data_report.to_excel(full_path+'/history_cathodics_thermo'+owner_id+'.xlsx', index=False)
 
     return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.xlsx', as_attachment=True)
