@@ -106,9 +106,9 @@ def history_cathodics_thermo():
     print ('creating file')
     full_path = os.path.dirname(os.path.abspath(__file__))    
    # df_to_excel(data_report,full_path+'/history_cathodics_thermo'+owner_id+'.xlsx',sheet_name='history_cathodics_thermo')
-    print ('created file')
-    data_report.to_excel(full_path+'/history_cathodics_thermo'+owner_id+'.xlsx', index=False)
 
+    data_report.to_excel(full_path+'/history_cathodics_thermo'+owner_id+'.xlsx', index=False)
+    print ('created file')
     return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.xlsx', as_attachment=True)
 
 
