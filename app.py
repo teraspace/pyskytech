@@ -53,6 +53,9 @@ def history_events():
 
     return send_from_directory(full_path, 'history_events'+owner_id+'.csv', as_attachment=True)
 
+
+
+
 @app.route('/data_science/history_cathodics_thermo')
 def history_cathodics_thermo():
     print ('hello history_cathodics_thermo')
@@ -85,11 +88,13 @@ def history_cathodics_thermo():
     owner_id = str(user.owner_id)
     print(owner_id)
     print(data_report)
-        
-    data_report.to_csv(r'/home/geotech-user/skytech_core/pyskytech/history_cathodics_thermo'+owner_id+'.csv', index=False)
 
-    return send_from_directory('/home/geotech-user/skytech_core/pyskytech',
-                               'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
+    
+    data_report.to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
+
+    return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
+
+
 
 @app.route('/data_science/history_cathodics_daily')
 def history_cathodics_daily():
@@ -117,12 +122,16 @@ def history_cathodics_daily():
     #data_incidents.columns = column_names
     
     owner_id = str(user.owner_id)
+    
+    full_path = os.path.dirname(os.path.abspath(__file__))
+    print (full_path)
+
+    data_report.to_csv(full_path+'/history_cathodics_daily'+owner_id+'.csv', index=False)
+
+    return send_from_directory(full_path, 'history_cathodics_daily'+owner_id+'.csv', as_attachment=True)
 
         
-    data_report.to_csv(r'/home/geotech-user/skytech_core/pyskytech/history_cathodics_daily'+owner_id+'.csv', index=False)
 
-    return send_from_directory('/home/geotech-user/skytech_core/pyskytech',
-                               'history_cathodics_daily'+owner_id+'.csv', as_attachment=True)
 
     
 
