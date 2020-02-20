@@ -73,7 +73,7 @@ def history_cathodics_thermo():
     data_report.columns = column_names
     owner_id = str(user.owner_id)
 
-    
+    full_path = os.path.dirname(os.path.abspath(__file__))    
     data_report.to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
 
     return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
