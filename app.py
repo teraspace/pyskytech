@@ -1,257 +1,16 @@
-
-# coding: utf-8
-
-# In[1]:
-
-
-def fields(cursor):
-    """ Given a DB API 2.0 cursor object that has been executed, returns
-    a dictionary that maps each field name to a column index; 0 and up. """
-    results = []
-    column = 0
-    for d in cursor.description:
-        results.insert(column, d[0])
-        column = column + 1
-
-    return results
-
-
-# In[2]:
-
-
-# to parse the timestamps for this person
-def process_datetime(dt):
-    '''a simple function to parse string time into several components'''
-    dt = datetime.strptime(dt, '%Y-%m-%d %H:%M:%S')
-    return [dt.weekday(), dt.hour]  # you can modify here to get other time components
-
-
-# In[3]:
-
-
 import cx_Oracle
 import pandas as pd
 from pandas import DataFrame
-
 from pandas import Series
 import numpy as np
-
 import datetime
-import os
-#import plotly
-#plotly.tools.set_credentials_file(username='carlosman79', api_key='hr7364U5bGLVEEsqNZmr')
-#import plotly.plotly as py
-#import plotly.graph_objs as go
+from utils.helper import *
+from reports.history import *
+from reports.cathodics import *
 
-
-cx_Oracle.clientversion()
-df_translations = []
-
-def query_user():
-    access_token = request.args.to_dict(flat=True).get('access_token')
-    print (access_token)
-    print('query_user')
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
-    sql = "select locale from users u join oauth_access_tokens o on u.id=o.resource_owner_id where o.token = :token"
-    curs = conn.cursor()
-    curs.prepare(sql)
-    curs.execute(None, {'token': access_token})
-    df_user = DataFrame(curs.fetchall())
-    c = 0
-    column_names = []
-    for column in curs.description:
-        column_names.append(curs.description[c][0])
-        c += 1
-    df_user.columns = column_names
-    return df_user.LOCALE.item()
-# In[4]:
-
-
-def query_translator(locale):
-    print('query_translator')
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
-    sql = "SELECT * from translations where locale = :locale"
-    curs = conn.cursor()
-    curs.prepare(sql)
-    try:
-        locale = query_user()
-    except:
-        locale = 'es'
-    print (locale)
-    curs.execute(None, {'locale': locale})
-    df_translator = DataFrame(curs.fetchall())
-    
-    c = 0
-    column_names = []
-    for column in curs.description:
-        column_names.append(curs.description[c][0])
-        c += 1
-
-    df_translator.columns = column_names
-
-    conn.close()
-    return df_translator
-    #df_translator = pd.read_sql(sql, conn, parse_dates=True)
-
-
-# In[5]:
-
-
-def query_translator_words(locale,words):
-    print('query_translator_words')
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
-    words =  str(words).replace('[','').replace(']','').replace('"', '\'')  
-    sql = "SELECT  key, value from translations where locale = :locale and key in (" + words + ")"
-
-    curs = conn.cursor()
-    curs.prepare(sql)
-    #try:
-    locale = query_user()
-    #except:
-    #    locale = 'es'
-    print(locale)
-    curs.execute(None, {'locale': locale})
-    df_translator = DataFrame(curs.fetchall())
-    
-    c = 0
-    column_names = []
-    for column in curs.description:
-        column_names.append(curs.description[c][0])
-        c += 1
-    df_translator.columns = column_names
-
-    conn.close()
-    return df_translator
-
-
-# In[6]:
-
-
-def translate(key, words):
-    global df_translations
-    if ( not isinstance( df_translations, (DataFrame)  ) ):
-        if (words==None):
-            df_translations = query_translator('es')
-        else:
-            df_translations = query_translator_words('es', words)
-        #print(type(df_translations))
-    #filter = df_translations["KEY"]==key
-
-    df_found = df_translations[df_translations.KEY == key.lower()]
-    try:
-        return df_found.VALUE.item()
-    except:
-        return key
-
-
-# In[13]:
-
-
-def query_incidents(args):
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
-    plates =  args.get('plates').replace('[','').replace(']','').replace('"', '\'')  
-    
-    
-    events = []
-    for e in args.get('events_ids').replace('[','').replace(']','').replace('"', '\'').split(','):
-            events.append(str(e))
-
-            
-    events =  str(args.get('events_ids')).replace('[','').replace(']','').replace('"', '\'')
-
-    sql = "SELECT /*+ index(INCIDENTS,INCIDENTS_INDEX3CDESC) */ incidents.ID, incidents.PLATE, incidents.ADDRESS,X, Y, DATE_ENTRY as date_entry_date , DATE_SYSTEM AS date_system_date,to_char( DATE_ENTRY, 'dd/mm/yyyy hh24:mi:ss' ) as DATE_ENTRY , to_char( DATE_SYSTEM, 'dd/mm/yyyy hh24:mi:ss' ) as DATE_SYSTEM ,to_timestamp( to_char(DATE_ENTRY, 'dd/mm/yyyy hh24:mi:ss'), 'dd/mm/yyyy hh24:mi:ss' ) as date_time_entry ,ORIENTATION,SPEED,incidents.MOBILE_ID,incidents.EVENT_ID, incidents.VALUE,incidents.description as DESCRIPTION_EVENT, incidents.description as event_name,BATTERY,SHEET,null as camera  ,incidents.INTERNAL_CODE  FROM incidents left join  \"OWNER_PLATES\" pl ON pl.plate=incidents.plate and pl.owner_id = :owner_id left join  \"OWNER_EVENTS\" ev ON ev.event_id=incidents.event_id and ev.owner_id = :owner_id left join  \"OWNER_DRIVERS\" dri ON dri.id=pl.OWNER_DRIVER_ID  WHERE  date_entry between       to_date(:fecha_inicial, 'dd/mm/yyyy hh24:mi:ss') and     to_date(:fecha_final, 'dd/mm/yyyy hh24:mi:ss') and ev.PAGE = 1  AND   incidents.plate in(" + plates + ")  and incidents.event_id in(" + events + ")  ORDER BY incidents.plate ASC, date_entry desc"
-    
-    curs = conn.cursor()
-    curs.prepare(sql)
-
-    curs.execute(None, 
-                 {'owner_id': args.get('owner_id'),  
-                  'fecha_inicial': args.get('fecha_inicial') ,  
-                  'fecha_final': args.get('fecha_final')
-                 
-                 }
-                 
-                
-                )
-    df2 = DataFrame(curs.fetchall())
-    data_incidents = df2
-    c = 0
-    column_names = []
-    for column in curs.description:
-        column_names.append(curs.description[c][0])
-        c += 1
-    try:
-        data_incidents.columns = column_names
-    except:
-        data_incidents.columns = data_incidents.columns
-
-    conn.close()
-    return data_incidents
-
-
-# In[14]:
-
-
-def query_historics(args):
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
-    plates =  args.get('plates').replace('[','').replace(']','').replace('"', '\'')  
-    
-    
-    events = []
-    for e in args.get('events_ids').replace('[','').replace(']','').replace('"', '\'').split(','):
-            events.append(str(e))
-
-            
-    events =  str(args.get('events_ids')).replace('[','').replace(']','').replace('"', '\'')
-
-    sql = "SELECT /*+ index(historics,HISTORICS_INDEX3CDESC) */ historics.ID, historics.PLATE, historics.ADDRESS,X, Y, DATE_ENTRY as date_entry_date , DATE_SYSTEM AS date_system_date,to_char( DATE_ENTRY, 'dd/mm/yyyy hh24:mi:ss' ) as DATE_ENTRY , to_char( DATE_SYSTEM, 'dd/mm/yyyy hh24:mi:ss' ) as DATE_SYSTEM ,to_timestamp( to_char(DATE_ENTRY, 'dd/mm/yyyy hh24:mi:ss'), 'dd/mm/yyyy hh24:mi:ss' ) as date_time_entry ,ORIENTATION,SPEED,historics.MOBILE_ID,historics.EVENT_ID,'' as VALUE,'posicion_gps' as DESCRIPTION_EVENT,'posicion_gps' as event_name,BATTERY,SHEET,null as camera  ,historics.INTERNAL_CODE  FROM \"HISTORICS\" left join  \"OWNER_PLATES\" pl ON pl.plate=\"HISTORICS\".plate and pl.owner_id = :owner_id left join  \"OWNER_EVENTS\" ev ON ev.event_id=\"HISTORICS\".event_id and ev.owner_id = :owner_id left join  \"OWNER_DRIVERS\" dri ON dri.id=pl.OWNER_DRIVER_ID  WHERE  date_entry between       to_date(:fecha_inicial, 'dd/mm/yyyy hh24:mi:ss') and     to_date(:fecha_final, 'dd/mm/yyyy hh24:mi:ss') and ev.PAGE = 1  AND   \"HISTORICS\".plate in(" + plates + ")  and \"HISTORICS\".event_id in(" + events + ")  ORDER BY \"HISTORICS\".plate ASC, date_entry desc"
-
-    curs = conn.cursor()
-    curs.prepare(sql)
-
-    curs.execute(None, 
-                 {'owner_id': args.get('owner_id'),  
-                  'fecha_inicial': args.get('fecha_inicial') ,  
-                  'fecha_final': args.get('fecha_final')
-                 
-                 }
-                 
-                
-                )
-    df2 = DataFrame(curs.fetchall())
-    data_historics = df2
-    c = 0
-    column_names = []
-    for column in curs.description:
-        column_names.append(curs.description[c][0])
-        c += 1
-
-    try:
-        data_historics.columns = column_names
-    except:
-        data_historics.columns = data_historics.columns
-    conn.close()
-    return data_historics
-
-
-# In[15]:
-
-
-#df_all_rows.to_csv(r'/home/geotech-user/first.csv')
-
-
-# In[16]:
-
-
-# df_all_rows.to_excel('test.xlsx', sheet_name='sheet1', index=False)
-
-
-# In[17]:
-
-
+from db.models import *
 from flask import Flask
 app = Flask(__name__)
-
 from flask import request
 from flask import send_from_directory
 
@@ -263,7 +22,7 @@ def index():
 @app.route('/data_science/history_events')
 def history_events():
     print ('hello reports')
-
+    user = query_user(request)
     
     data_historics = query_historics(request.args.to_dict(flat=True))
     data_incidents = query_incidents(request.args.to_dict(flat=True))
@@ -273,26 +32,100 @@ def history_events():
     column_keys = ['PLATE', 'INTERNAL_CODE', 'DATE_ENTRY','EVENT_NAME','VALUE','ADDRESS', 'X', 'Y', 'SPEED', 'ORIENTATION', 'BATTERY', 'SHEET']
     translaters = data_report['EVENT_NAME'].unique().tolist() + [x.lower() for x in column_keys]
     print (translaters)
-    data_report['EVENT_NAME'] = data_report['EVENT_NAME'].apply(lambda x: translate(x, translaters))
+    data_report['EVENT_NAME'] = data_report['EVENT_NAME'].apply(lambda x: translate(x, translaters, user.locale))
     
     column_names = []
 
     for c in column_keys:
         print (translate(c, translaters))
-        column_names.append(translate(c.lower(), translaters))
+        column_names.append(translate(c.lower(), translaters, user.locale))
+    
+    print(column_names)
+    data_report = data_report[column_keys]
+    data_report.columns = column_names
+    
+    owner_id = str(user.owner_id)
+    print(owner_id)
+    full_path = os.path.dirname(os.path.abspath(__file__))
+    print (full_path)
+
+    data_report.to_csv(full_path+'/history_events'+owner_id+'.csv', index=False)
+
+    return send_from_directory(full_path, 'history_events'+owner_id+'.csv', as_attachment=True)
+
+@app.route('/data_science/history_cathodics_thermo')
+def history_cathodics_thermo():
+    print ('hello history_cathodics_thermo')
+    req = request.args.to_dict(flat=True)
+    user = query_user(req)
+    print(req)
+    cathodics_thermo = query_thermo(req)
+    print(cathodics_thermo)
+    #cathodics_rect = query_recti(req)
+    data_report = pd.concat([cathodics_thermo])
+    data_report = data_report.sort_index()
+    print(data_report)
+    data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
+    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
+    translaters = [x.lower() for x in column_keys]
+    print (translaters)
+
+    
+    column_names = []
+
+    for c in column_keys:
+        column_names.append(translate(c, translaters, user.locale))
     
     print(column_names)
     data_report = data_report[column_keys]
     data_report.columns = column_names
     #data_incidents = data_historics[column_keys]
     #data_incidents.columns = column_names
-    owner_id = request.args.to_dict(flat=True).get('owner_id')
-    full_path = os.path.dirname(os.path.abspath(__file__))
-    print (full_path)
-    #os.remove(full_path+'/history_events'+owner_id+'.csv')     
-    data_report.to_csv(full_path+'/history_events'+owner_id+'.csv', index=False)
+    
+    owner_id = str(user.owner_id)
+    print(owner_id)
+    print(data_report)
+        
+    data_report.to_csv(r'/home/geotech-user/skytech_core/pyskytech/history_cathodics_thermo'+owner_id+'.csv', index=False)
 
-    return send_from_directory(full_path, 'history_events'+owner_id+'.csv', as_attachment=True)
+    return send_from_directory('/home/geotech-user/skytech_core/pyskytech',
+                               'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
+
+@app.route('/data_science/history_cathodics_daily')
+def history_cathodics_daily():
+    print ('hello history_cathodics_daily')
+    req = request.args.to_dict(flat=True)
+    user = query_user(req)
+    cathodics_daily = query_daily(req)
+    #cathodics_daily = query_daily(req)
+    data_report = pd.concat([cathodics_daily])
+    data_report = data_report.sort_index()
+    data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
+    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
+    translaters = [x.lower() for x in column_keys]
+
+
+    
+    column_names = []
+
+    for c in column_keys:
+        column_names.append(translate(c, translaters, user.locale))
+
+    data_report = data_report[column_keys]
+    data_report.columns = column_names
+    #data_incidents = data_historics[column_keys]
+    #data_incidents.columns = column_names
+    
+    owner_id = str(user.owner_id)
+
+        
+    data_report.to_csv(r'/home/geotech-user/skytech_core/pyskytech/history_cathodics_daily'+owner_id+'.csv', index=False)
+
+    return send_from_directory('/home/geotech-user/skytech_core/pyskytech',
+                               'history_cathodics_daily'+owner_id+'.csv', as_attachment=True)
+
+    
+
 if (__name__ == '__main__'):
     app.run(host='0.0.0.0')
 
