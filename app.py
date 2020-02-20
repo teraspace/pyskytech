@@ -22,8 +22,8 @@ def index():
 @app.route('/data_science/history_events')
 def history_events():
     print ('hello reports')
-    user = query_user(request)
-    
+    req = request.args.to_dict(flat=True)
+    user = query_user(req)
     data_historics = query_historics(request.args.to_dict(flat=True))
     data_incidents = query_incidents(request.args.to_dict(flat=True))
     data_report = pd.concat([data_historics, data_incidents])
@@ -31,23 +31,18 @@ def history_events():
     data_report.sort_values('DATE_ENTRY', inplace=True, ascending=False)
     column_keys = ['PLATE', 'INTERNAL_CODE', 'DATE_ENTRY','EVENT_NAME','VALUE','ADDRESS', 'X', 'Y', 'SPEED', 'ORIENTATION', 'BATTERY', 'SHEET']
     translaters = data_report['EVENT_NAME'].unique().tolist() + [x.lower() for x in column_keys]
-    print (translaters)
     data_report['EVENT_NAME'] = data_report['EVENT_NAME'].apply(lambda x: translate(x, translaters, user.locale))
     
     column_names = []
 
     for c in column_keys:
-        print (translate(c, translaters))
         column_names.append(translate(c.lower(), translaters, user.locale))
     
-    print(column_names)
     data_report = data_report[column_keys]
     data_report.columns = column_names
     
     owner_id = str(user.owner_id)
-    print(owner_id)
     full_path = os.path.dirname(os.path.abspath(__file__))
-    print (full_path)
 
     data_report.to_csv(full_path+'/history_events'+owner_id+'.csv', index=False)
 
@@ -61,17 +56,12 @@ def history_cathodics_thermo():
     print ('hello history_cathodics_thermo')
     req = request.args.to_dict(flat=True)
     user = query_user(req)
-    print(req)
     cathodics_thermo = query_thermo(req)
-    print(cathodics_thermo)
-    #cathodics_rect = query_recti(req)
     data_report = pd.concat([cathodics_thermo])
     data_report = data_report.sort_index()
-    print(data_report)
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
     column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
     translaters = [x.lower() for x in column_keys]
-    print (translaters)
 
     
     column_names = []
@@ -79,15 +69,9 @@ def history_cathodics_thermo():
     for c in column_keys:
         column_names.append(translate(c, translaters, user.locale))
     
-    print(column_names)
     data_report = data_report[column_keys]
     data_report.columns = column_names
-    #data_incidents = data_historics[column_keys]
-    #data_incidents.columns = column_names
-    
     owner_id = str(user.owner_id)
-    print(owner_id)
-    print(data_report)
 
     
     data_report.to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
@@ -102,7 +86,6 @@ def history_cathodics_daily():
     req = request.args.to_dict(flat=True)
     user = query_user(req)
     cathodics_daily = query_daily(req)
-    #cathodics_daily = query_daily(req)
     data_report = pd.concat([cathodics_daily])
     data_report = data_report.sort_index()
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
@@ -118,14 +101,9 @@ def history_cathodics_daily():
 
     data_report = data_report[column_keys]
     data_report.columns = column_names
-    #data_incidents = data_historics[column_keys]
-    #data_incidents.columns = column_names
-    
     owner_id = str(user.owner_id)
     
     full_path = os.path.dirname(os.path.abspath(__file__))
-    print (full_path)
-
     data_report.to_csv(full_path+'/history_cathodics_daily'+owner_id+'.csv', index=False)
 
     return send_from_directory(full_path, 'history_cathodics_daily'+owner_id+'.csv', as_attachment=True)
