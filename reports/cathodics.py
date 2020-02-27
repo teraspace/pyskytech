@@ -11,6 +11,7 @@ start_time = time.time()
 def query_thermo(request):
     
    # plates =  request.get('plates').replace('[','').replace(']','').replace('"', '\'')  
+    print('query_thermo')
     user = query_user(request)
     idStation = request.get('idStation')
     print(idStation)
