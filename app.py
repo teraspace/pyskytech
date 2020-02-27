@@ -80,9 +80,9 @@ def history_cathodics_recti():
     owner_id = str(user.owner_id)
 
     full_path = os.path.dirname(os.path.abspath(__file__))    
-    data_report.to_excel(full_path+'/history_cathodics_recti'+owner_id+'.xlsx', index=False)
-
-    return send_from_directory(full_path, 'history_cathodics_recti'+owner_id+'.xlsx', as_attachment=True)
+    #data_report.to_excel(full_path+'/history_cathodics_recti'+owner_id+'.xlsx', index=False)
+    data_report.to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
+    return send_from_directory(full_path, 'history_cathodics_recti'+owner_id+'.csv', as_attachment=True)
 
 @app.route('/data_science/history_cathodics_thermo')
 def history_cathodics_thermo():
@@ -110,20 +110,20 @@ def history_cathodics_thermo():
     print("--- %s creating file' ---" % (time.time() - start_time))
     full_path = os.path.dirname(os.path.abspath(__file__))    
 
-    data_report.to_excel(full_path+'/history_cathodics_thermo'+owner_id+'.xlsx', index=False)
-    print("--- %s creating file xlsx1' ---" % (time.time() - start_time))
+    #data_report.to_excel(full_path+'/history_cathodics_thermo'+owner_id+'.xlsx', index=False)
+    #print("--- %s creating file xlsx1' ---" % (time.time() - start_time))
     start_time = time.time()
     data_report.to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
     print("--- %s creating file csv' ---" % (time.time() - start_time))
-    start_time = time.time()
-    df_to_excel(data_report,full_path+'/history_cathodics_thermo'+owner_id+'.xlsx',sheet_name='history_cathodics_thermo')
-    print("--- %s creating file xlsx2' ---" % (time.time() - start_time))
+    #start_time = time.time()
+   # df_to_excel(data_report,full_path+'/history_cathodics_thermo'+owner_id+'.xlsx',sheet_name='history_cathodics_thermo')
+    #print("--- %s creating file xlsx2' ---" % (time.time() - start_time))
     #start_time = time.time()
 
     print("--- %s total time' ---" % (time.time() - total_time))
 
 
-    return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.xlsx', as_attachment=True)
+    return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
 
 
 
@@ -151,9 +151,9 @@ def history_cathodics_daily():
     owner_id = str(user.owner_id)
     
     full_path = os.path.dirname(os.path.abspath(__file__))
-    data_report.to_excel(full_path+'/history_cathodics_daily'+owner_id+'.xlsx', index=False)
-
-    return send_from_directory(full_path, 'history_cathodics_daily'+owner_id+'.xlsx', as_attachment=True)
+    #data_report.to_excel(full_path+'/history_cathodics_daily'+owner_id+'.xlsx', index=False)
+    data_report.to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
+    return send_from_directory(full_path, 'history_cathodics_daily'+owner_id+'.csv', as_attachment=True)
 
         
 
