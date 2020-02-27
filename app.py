@@ -14,6 +14,8 @@ app = Flask(__name__)
 from flask import request
 from flask import send_from_directory
 from pyexcelerate import Workbook
+import time
+start_time = time.time()
 
 def df_to_excel(df, path, sheet_name='Sheet 1'):
     data = [df.columns.tolist(), ] + df.values.tolist()
@@ -85,6 +87,7 @@ def history_cathodics_recti():
 @app.route('/data_science/history_cathodics_thermo')
 def history_cathodics_thermo():
     print ('hello history_cathodics_thermo')
+    total_time = time.time()
     req = request.args.to_dict(flat=True)
     user = query_user(req)
     cathodics_thermo = query_thermo(req)
@@ -103,12 +106,23 @@ def history_cathodics_thermo():
     data_report = data_report[column_keys]
     data_report.columns = column_names
     owner_id = str(user.owner_id)
-    print ('creating file')
+    start_time = time.time()
+    print("--- %s creating file' ---" % (time.time() - start_time))
     full_path = os.path.dirname(os.path.abspath(__file__))    
-   # df_to_excel(data_report,full_path+'/history_cathodics_thermo'+owner_id+'.xlsx',sheet_name='history_cathodics_thermo')
 
     data_report.to_excel(full_path+'/history_cathodics_thermo'+owner_id+'.xlsx', index=False)
-    print ('created file')
+    print("--- %s creating file xlsx1' ---" % (time.time() - start_time))
+    start_time = time.time()
+    data_report.to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
+    print("--- %s creating file csv' ---" % (time.time() - start_time))
+    start_time = time.time()
+    df_to_excel(data_report,full_path+'/history_cathodics_thermo'+owner_id+'.xlsx',sheet_name='history_cathodics_thermo')
+    print("--- %s creating file xlsx2' ---" % (time.time() - start_time))
+    #start_time = time.time()
+
+    print("--- %s total time' ---" % (time.time() - total_time))
+
+
     return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.xlsx', as_attachment=True)
 
 

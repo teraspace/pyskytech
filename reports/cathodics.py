@@ -5,7 +5,8 @@ import django
 django.setup()
 from db.models import *
 from utils.helper import *
-
+import time
+start_time = time.time()
 
 def query_thermo(request):
     
@@ -45,8 +46,12 @@ def query_thermo(request):
                  
                 
                 )
+    start_time = time.time()
+    print("--- %s fetching ---" % (time.time() - start_time))
     df2 = DataFrame(curs.fetchall())
     data_historics = df2
+   # start_time = time.time()
+    print("--- %s fetched ---" % (time.time() - start_time))
     c = 0
     column_names = []
     for column in curs.description:
