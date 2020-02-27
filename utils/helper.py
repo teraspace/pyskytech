@@ -5,7 +5,6 @@ from reports.history import *
 
 def query_user(request):
     access_token = request.get('access_token')
-    #Room.objects.select_related('house').filter(house__street=xyz)
     oat = OauthAccessToken.objects.get(token=access_token)
     print(oat.resource_owner_id)
     user = User.objects.get(id=oat.resource_owner_id)
