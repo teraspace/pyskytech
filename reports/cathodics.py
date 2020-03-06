@@ -74,14 +74,16 @@ def query_recti(request):
     idStation = request.get('idStation')
     print(idStation)
     mobile_ids = []
-    if len(idStation.split(','))>0:
-        print('idStation')
+    if len(idStation)==0:
+        print('idStation 0')
         print(idStation)
         plate = OwnerPlate.objects.filter(owner_id = user.owner_id).values_list('plate', flat=True)
         mobile_ids = Mobile.objects.filter(plate__in = plate).values_list('id', flat=True)
         mobile_ids = str(list(mobile_ids)).replace("[","").replace("]","")
     else:
-        plate = OwnerPlate.objects.filter(id = idStation).values_list('plate', flat=True)
+        print('idStation 1')
+        print(idStation)
+        plate = OwnerPlate.objects.filter(id__in = idStation.split(',')).values_list('plate', flat=True)
         mobile_ids = Mobile.objects.filter(plate__in = plate).values_list('id', flat=True)
         mobile_ids = str(list(mobile_ids)).replace("[","").replace("]","")
 
