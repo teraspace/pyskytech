@@ -14,9 +14,10 @@ def query_thermo(request):
     print('query_thermo')
     user = query_user(request)
     idStation = request.get('idStation')
-    print(idStation)
+    print('idStation')
+    print(len(idStation.split(',')))
     mobile_ids = []
-    if str(idStation)=='0':
+    if len(idStation.split(','))>0:
         print('idStation')
         print(idStation)
         plate = OwnerPlate.objects.filter(owner_id = user.owner_id).values_list('plate', flat=True)
@@ -73,7 +74,7 @@ def query_recti(request):
     idStation = request.get('idStation')
     print(idStation)
     mobile_ids = []
-    if str(idStation)=='0':
+    if len(idStation.split(','))>0:
         print('idStation')
         print(idStation)
         plate = OwnerPlate.objects.filter(owner_id = user.owner_id).values_list('plate', flat=True)
