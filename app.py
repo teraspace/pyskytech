@@ -185,8 +185,8 @@ def history_cathodics_daily():
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-dash_thermo = Dash(__name__, server = server, url_base_pathname='/thermo/',  external_stylesheets=external_stylesheets )
-dash_recti = Dash(__name__, server = server, url_base_pathname='/recti/',  external_stylesheets=external_stylesheets )
+dash_thermo = Dash(__name__, server = server, url_base_pathname='/data_science/thermo/',  external_stylesheets=external_stylesheets )
+dash_recti = Dash(__name__, server = server, url_base_pathname='/data_science/recti/',  external_stylesheets=external_stylesheets )
 dash_thermo.layout = custom_layout()
 dash_recti.layout = custom_layout()
 
