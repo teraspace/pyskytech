@@ -87,3 +87,13 @@ class Mobile(models.Model):
     plate =  models.CharField(max_length=50)
     class Meta:
         db_table = "MOBILES"    
+
+class UserSupport(models.Model):
+    id = models.IntegerField(primary_key=True)
+    user_id = models.IntegerField()
+    owner_id = models.IntegerField()
+    token = models.CharField(max_length=255)
+    ip = models.CharField(max_length=50)
+    date_entry = models.DateTimeField(db_column='date_entry')
+    class Meta:
+        db_table = "USER_SUPPORTS"    

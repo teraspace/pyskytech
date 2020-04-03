@@ -7,14 +7,36 @@ import datetime
 from utils.helper import *
 from reports.history import *
 from reports.cathodics import *
-
+import flask
 from db.models import *
 from flask import Flask
-app = Flask(__name__)
+from flask import redirect
+
+import dash
+import dash_table
+import dash_core_components as dcc
+import dash_html_components as html
+from datetime import datetime as dt
+import dateutil.relativedelta
+from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
+
+from dash import Dash
 from flask import request
 from flask import send_from_directory
 from pyexcelerate import Workbook
 import time
+from werkzeug.serving import run_simple
+import urllib.parse
+import plotly.graph_objects as go
+
+from views.cathodic_view import *
+
+
+server = Flask(__name__)
+
+
+
 start_time = time.time()
 
 def df_to_excel(df, path, sheet_name='Sheet 1'):
@@ -23,11 +45,11 @@ def df_to_excel(df, path, sheet_name='Sheet 1'):
     wb.new_sheet(sheet_name, data=data)
     wb.save(path)
 
-@app.route('/')
+@server.route('/')
 def index():
     return 'Server Works!'
   
-@app.route('/data_science/history_events')
+@server.route('/data_science/history_events')
 def history_events():
     print ('hello reports')
     req = request.args.to_dict(flat=True)
@@ -57,7 +79,7 @@ def history_events():
     return send_from_directory(full_path, 'history_events'+owner_id+'.csv', as_attachment=True)
 
 
-@app.route('/data_science/history_cathodics_recti')
+@server.route('/data_science/history_cathodics_recti')
 def history_cathodics_recti():
     print ('hello history_cathodics_recti')
     req = request.args.to_dict(flat=True)
@@ -84,11 +106,12 @@ def history_cathodics_recti():
     data_report.to_csv(full_path+'/history_cathodics_recti'+owner_id+'.csv', index=False)
     return send_from_directory(full_path, 'history_cathodics_recti'+owner_id+'.csv', as_attachment=True)
 
-@app.route('/data_science/history_cathodics_thermo')
+@server.route('/data_science/history_cathodics_thermo')
 def history_cathodics_thermo():
     print ('hello history_cathodics_thermo')
     total_time = time.time()
     req = request.args.to_dict(flat=True)
+    print(req)
     user = query_user(req)
     cathodics_thermo = query_thermo(req)
     data_report = pd.concat([cathodics_thermo])
@@ -127,7 +150,10 @@ def history_cathodics_thermo():
 
 
 
-@app.route('/data_science/history_cathodics_daily')
+    
+
+
+@server.route('/data_science/history_cathodics_daily')
 def history_cathodics_daily():
     print ('hello history_cathodics_daily')
     req = request.args.to_dict(flat=True)
@@ -155,11 +181,77 @@ def history_cathodics_daily():
     data_report.to_csv(full_path+'/history_cathodics_daily'+owner_id+'.csv', index=False)
     return send_from_directory(full_path, 'history_cathodics_daily'+owner_id+'.csv', as_attachment=True)
 
-        
 
 
-    
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+dash_thermo = Dash(__name__, server = server, url_base_pathname='/thermo/',  external_stylesheets=external_stylesheets )
+dash_recti = Dash(__name__, server = server, url_base_pathname='/recti/',  external_stylesheets=external_stylesheets )
+dash_thermo.layout = custom_layout()
+dash_recti.layout = custom_layout()
+
+
+@dash_recti.callback(
+    Output("stations", "options"),
+    [Input("stations", "search_value")],
+)
+def update_dropdown_stations(wdg):
+    print('update_dropdown_stations')
+    parsed_query = urllib.parse.urlparse( flask.request.headers.get('Referer') )
+    pur = parse_url_params( parsed_query )
+    print(pur)
+    mobiles =  [{'label':i['plate'],'value':(i['id'])} for i in query_mobiles(pur)] 
+    return mobiles
+
+@dash_thermo.callback(
+    Output("stations", "options"),
+    [Input("stations", "search_value")],
+)
+def update_dropdown_stations(wdg):
+    print('update_dropdown_stations')
+    parsed_query = urllib.parse.urlparse( flask.request.headers.get('Referer') )
+    pur = parse_url_params( parsed_query )
+    print(pur)
+    mobiles =  [{'label':i['plate'],'value':(i['id'])} for i in query_mobiles(pur)] 
+    return mobiles
+
+
+@dash_thermo.callback(
+   [ Output('datatable-timeframed', 'data'),
+     Output('datatable-timeframed', 'columns')],
+    [   Input('datatable-timeframed', "page_current"), 
+        Input('datatable-timeframed', "page_size"), 
+        Input('url', "pathname"),
+        Input('report-date', 'start_date'),
+        Input('report-date', 'end_date'),
+        Input('timeframes', 'value'),
+        Input('button', 'n_clicks'),
+        Input('stations', 'value')
+    ]
+    )
+def update_table_framed(page_current,page_size, url, start_date, end_date, timeframe, n_clicks, stations):
+    return mupdate_table_framed(page_current,page_size, url, start_date, end_date, timeframe, n_clicks, stations, flask.request.headers.get('Referer') )
+
+
+@dash_recti.callback(
+   [ Output('datatable-timeframed', 'data'),
+     Output('datatable-timeframed', 'columns')],
+    [   Input('datatable-timeframed', "page_current"), 
+        Input('datatable-timeframed', "page_size"), 
+        Input('url', "pathname"),
+        Input('report-date', 'start_date'),
+        Input('report-date', 'end_date'),
+        Input('timeframes', 'value'),
+        Input('button', 'n_clicks'),
+        Input('stations', 'value')
+    ]
+)
+def update_table_framed(page_current,page_size, url, start_date, end_date, timeframe, n_clicks, stations):
+    return mupdate_table_framed(page_current,page_size, url, start_date, end_date, timeframe, n_clicks, stations, flask.request.headers.get('Referer') )
+
+
+
 
 if (__name__ == '__main__'):
-    app.run(host='0.0.0.0')
+    server.run(host='0.0.0.0')
 

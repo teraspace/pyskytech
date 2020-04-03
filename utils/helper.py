@@ -2,18 +2,58 @@ import cx_Oracle
 import pandas as pd
 from pandas import DataFrame
 from reports.history import *
+import urllib.parse
+import requests
 
+
+def parse_url_params(ref):
+   
+    parsed = {}
+    print('parse_url_params')
+    print(ref.query)
+    only_params = urllib.parse.unquote(ref.query)
+    array_params = only_params.split('&')
+    for item in array_params:
+        print(item)
+        parsed[item.split('=')[0]] = item.split('=')[1]
+    return parsed
+
+
+def get_params(flask):
+    parsed_query = urllib.parse.urlparse(flask.request.headers.get('Referer') )
+    pur = parse_url_params( parsed_query )
+    return pur
+
+
+def query_mobiles(request):
+    print('query_mobiles')
+    print(request)
+    mobiles = None
+    access_token = request.get('access_token')
+    response = requests.get('https://api.geotechsa.co/owner_plates?access_token=' + access_token)
+    
+    if response.status_code != 200:
+        # This means something went wrong.
+        raise ApiError('GET /tasks/ {}'.format(response.status_code))
+
+    return response.json()['data']
 def query_user(request):
     access_token = request.get('access_token')
     oat = OauthAccessToken.objects.get(token=access_token)
     print(oat.resource_owner_id)
     user = User.objects.get(id=oat.resource_owner_id)
- 
+    if user.user_profile_id == 3:
+        try:
+            us = UserSupport.objects.get(token=oat.token)
+            user.owner_id = us.owner_id
+        except:
+            print('no modificar')
+    print(user)
     return user
 
 def query_translator(locale):
     print('query_translator')
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
+    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8', threaded=True)
     sql = "SELECT * from translations where locale = :locale"
     curs = conn.cursor()
     curs.prepare(sql)
@@ -40,7 +80,7 @@ df_translations = []
 
 def query_translator_words(locale,words):
     print('query_translator_words')
-    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8')
+    conn = cx_Oracle.connect("skytech", "skytech", "oracle.geotech.com.co/geotech", encoding='UTF-8', nencoding='UTF-8', threaded=True)
     words =  str(words).replace('[','').replace(']','').replace('"', '\'')  
     sql = "SELECT  key, value from translations where locale = :locale and key in (" + words + ")"
 
@@ -89,9 +129,6 @@ def fields(cursor):
         column = column + 1
 
     return results
-
-
-# In[2]:
 
 
 # to parse the timestamps for this person
