@@ -20,13 +20,15 @@ def custom_layout():
     
    return html.Div(style={'backgroundColor': colors['background']}, children=[  
     dcc.Location(id='url'),
+    html.Script('document.getElementById("uuu").innerHTML = "Hello"', type="text/JavaScript"),
+
     html.Div(style={'backgroundColor': colors['background'], 'display':'inline'}, children=[
         dcc.DatePickerRange(
             id='report-date',
             start_date=(datetime.datetime.now() + dateutil.relativedelta.relativedelta(months=-1)),
             min_date_allowed=dt(datetime.datetime.now().year, 1, 1),
             max_date_allowed=dt.today(),
-            initial_visible_month=dt(datetime.datetime.now().year, 1, 1),
+            initial_visible_month=(datetime.datetime.now() + dateutil.relativedelta.relativedelta(months=-1)),
             end_date=dt.today(),
             display_format = 'DD/MM/YYYY'
         ) ,
@@ -62,12 +64,20 @@ def custom_layout():
     #     page_size=PAGE_SIZE,
     #     page_action='custom'
     # ),
-    dash_table.DataTable(
-        id='datatable-timeframed',
-        page_current=0,
-        page_size=PAGE_SIZE,
-        page_action='custom'
-    ),
+    dcc.Loading(
+            id="loading-2",
+            children=[    
+                    dash_table.DataTable(
+                    id='datatable-timeframed',
+                    page_current=0,
+                    page_size=PAGE_SIZE,
+                    page_action='custom'
+                ),
+                    html.A('Download CSV', id='link-csv')
+                ],
+                    type="circle",
+                )
+,
         html.Div(id='table-store', style={'display': 'none'})
 
 ])
@@ -80,17 +90,10 @@ last_url = ''
 def mupdate_table_framed(page_current,page_size, url, start_date, end_date, timeframe, n_clicks, stations, params):
 
     print ('_update_table_framed')
-    print(params)
+
     global last_click
     data_frame = pd.DataFrame()
-    print(start_date)
-    print(end_date)
-    print(timeframe)
-    print('clicks')
-    print(n_clicks)
-    print(last_click)
-    print(stations)
-    print(url)
+
     if stations==None:
         stations=''
     parsed_query = urllib.parse.urlparse(params)
@@ -107,7 +110,7 @@ def mupdate_table_framed(page_current,page_size, url, start_date, end_date, time
               'fecha_final_reporte':   dt.strftime(fecha_final_reporte, target_format) + ' 23:59:59',
               'idStation': str(stations).replace('[','').replace(']','')
             }
-    print(query)
+
     global data_graph
     global df_cathodics
     global df_full_cathodics
@@ -123,28 +126,28 @@ def mupdate_table_framed(page_current,page_size, url, start_date, end_date, time
             df_full_cathodics = history_cathodics_data(query, params)
             last_click = n_clicks
     
-
-    print('click ' + str(n_clicks))
     
    
-
     if df_full_cathodics.empty:
         print('NO HAY DATOS PARA MOSTRAR')
         return pd.DataFrame().to_dict('records')
     else:
         df_cathodics = df_full_cathodics
-    #print(df_cathodics)
+
     data_frame = df_cathodics.set_index('Fecha')
 
     data_graph = data_frame.groupby('Estación').resample(timeframe).mean()
     data_graph = data_graph.dropna()
     data_graph = data_graph.reset_index()
     data_graph = data_graph[["Estación", "Fecha", "Voltaje Salida Tubo(V)", "Voltaje SHUNT(mV)",  "Corriente Tubo(A)" ]]  
-
-  
+    mode_str =''
+    if 'thermo' in params:
+        mode_str = 'thermo_csv'
+    if 'recti' in params:
+        mode_str = 'recti_csv'
     return  data_graph.iloc[
         page_current*page_size:(page_current+ 1)*page_size
-    ].to_dict('records'), [{"name": i, "id": i} for i in (data_graph.columns.to_list())]
+    ].to_dict('records'), [{"name": i, "id": i} for i in (data_graph.columns.to_list())], 'file.csv?access_token=' + access_token
 
 
 
@@ -164,7 +167,6 @@ def history_cathodics_data(req, mode):
         cathodics_data = query_recti(req) 
     data_report = pd.concat([cathodics_data])
     data_report = data_report.sort_index()
-    print('data_report')
 
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
     column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
@@ -189,3 +191,4 @@ def history_cathodics_data(req, mode):
     print("--- %s total time' ---" % (time.time() - total_time))
 
     return data_report
+

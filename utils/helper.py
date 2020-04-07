@@ -7,14 +7,11 @@ import requests
 
 
 def parse_url_params(ref):
-   
     parsed = {}
     print('parse_url_params')
-    print(ref.query)
     only_params = urllib.parse.unquote(ref.query)
     array_params = only_params.split('&')
     for item in array_params:
-        print(item)
         parsed[item.split('=')[0]] = item.split('=')[1]
     return parsed
 
@@ -27,7 +24,6 @@ def get_params(flask):
 
 def query_mobiles(request):
     print('query_mobiles')
-    print(request)
     mobiles = None
     access_token = request.get('access_token')
     response = requests.get('https://api.geotechsa.co/owner_plates?access_token=' + access_token)
@@ -40,7 +36,6 @@ def query_mobiles(request):
 def query_user(request):
     access_token = request.get('access_token')
     oat = OauthAccessToken.objects.get(token=access_token)
-    print(oat.resource_owner_id)
     user = User.objects.get(id=oat.resource_owner_id)
     if user.user_profile_id == 3:
         try:
@@ -48,7 +43,6 @@ def query_user(request):
             user.owner_id = us.owner_id
         except:
             print('no modificar')
-    print(user)
     return user
 
 def query_translator(locale):
@@ -57,8 +51,6 @@ def query_translator(locale):
     sql = "SELECT * from translations where locale = :locale"
     curs = conn.cursor()
     curs.prepare(sql)
-
-    print (locale)
     curs.execute(None, {'locale': locale})
     df_translator = DataFrame(curs.fetchall())
     
@@ -69,7 +61,6 @@ def query_translator(locale):
         c += 1
 
     df_translator.columns = column_names
-
     conn.close()
     return df_translator
     #df_translator = pd.read_sql(sql, conn, parse_dates=True)
