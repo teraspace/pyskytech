@@ -145,6 +145,12 @@ def mupdate_table_framed(page_current,page_size, url, start_date, end_date, time
         mode_str = 'thermo_csv'
     if 'recti' in params:
         mode_str = 'recti_csv'
+    full_path = os.path.dirname(os.path.abspath(__file__))  
+
+    user = query_user(pur)
+
+    owner_id = str(user.owner_id)
+    data_graph.to_csv(full_path+'/cathodics_data'+owner_id+'.csv', index=False)
     return  data_graph.iloc[
         page_current*page_size:(page_current+ 1)*page_size
     ].to_dict('records'), [{"name": i, "id": i} for i in (data_graph.columns.to_list())], 'file.csv?access_token=' + access_token

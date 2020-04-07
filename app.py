@@ -263,18 +263,19 @@ def thermo_csv():
     parsed_query = urllib.parse.urlparse( flask.request.headers.get('Referer') )
     pur = parse_url_params( parsed_query )
     user = query_user(pur)
-    full_path = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.dirname(os.path.abspath(__file__)) + '/views/'
+
     owner_id = str(user.owner_id)
-    return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
+    return send_from_directory(full_path, 'cathodics_data'+owner_id+'.csv', as_attachment=True)
 
 @server.route('/data_science/recti/file.csv')
 def recti_csv():
     parsed_query = urllib.parse.urlparse( flask.request.headers.get('Referer') )
     pur = parse_url_params( parsed_query )
     user = query_user(pur)
-    full_path = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.dirname(os.path.abspath(__file__)) + '/views/'
     owner_id = str(user.owner_id)
-    return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
+    return send_from_directory(full_path, 'cathodics_data'+owner_id+'.csv', as_attachment=True)
 
 if (__name__ == '__main__'):
     server.run(host='0.0.0.0')
