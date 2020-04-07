@@ -73,7 +73,7 @@ def custom_layout():
                     page_size=PAGE_SIZE,
                     page_action='custom'
                 ),
-                    html.A('Download CSV', id='link-csv')
+                    html.A('Descargar CSV', id='link-csv')
                 ],
                     type="circle",
                 )
