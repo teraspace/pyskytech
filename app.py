@@ -111,7 +111,6 @@ def history_cathodics_thermo():
     print ('hello history_cathodics_thermo')
     total_time = time.time()
     req = request.args.to_dict(flat=True)
-    print(req)
     user = query_user(req)
     cathodics_thermo = query_thermo(req)
     data_report = pd.concat([cathodics_thermo])
@@ -199,9 +198,18 @@ def update_dropdown_stations(wdg):
     print('update_dropdown_stations')
     parsed_query = urllib.parse.urlparse( flask.request.headers.get('Referer') )
     pur = parse_url_params( parsed_query )
-    print(pur)
-    mobiles =  [{'label':i['plate'],'value':(i['id'])} for i in query_mobiles(pur)] 
+    mobiles =  [{'label':i['plate'],'value':(i['id'])} for i in filter(driver_filter, query_mobiles(pur))] 
     return mobiles
+
+def driver_filter(mobile):
+    parsed_query = flask.request.headers.get('Referer') 
+    mode = ''
+    if 'thermo' in parsed_query:
+        mode = 'TERMOGENERADOR'
+    if 'recti' in parsed_query:
+        mode = 'RECTIFICADOR'
+    print(mode)
+    return mobile['driver'] == mode
 
 @dash_thermo.callback(
     Output("stations", "options"),
@@ -211,14 +219,14 @@ def update_dropdown_stations(wdg):
     print('update_dropdown_stations')
     parsed_query = urllib.parse.urlparse( flask.request.headers.get('Referer') )
     pur = parse_url_params( parsed_query )
-    print(pur)
-    mobiles =  [{'label':i['plate'],'value':(i['id'])} for i in query_mobiles(pur)] 
+    mobiles =  [{'label':i['plate'],'value':(i['id'])} for i in filter(driver_filter, query_mobiles(pur))] 
     return mobiles
 
 
 @dash_thermo.callback(
    [ Output('datatable-timeframed', 'data'),
-     Output('datatable-timeframed', 'columns')],
+     Output('datatable-timeframed', 'columns'),
+      Output('link-csv', 'href')],
     [   Input('datatable-timeframed', "page_current"), 
         Input('datatable-timeframed', "page_size"), 
         Input('url', "pathname"),
@@ -235,7 +243,8 @@ def update_table_framed(page_current,page_size, url, start_date, end_date, timef
 
 @dash_recti.callback(
    [ Output('datatable-timeframed', 'data'),
-     Output('datatable-timeframed', 'columns')],
+     Output('datatable-timeframed', 'columns'),
+     Output('link-csv', 'href')],
     [   Input('datatable-timeframed', "page_current"), 
         Input('datatable-timeframed', "page_size"), 
         Input('url', "pathname"),
@@ -249,8 +258,23 @@ def update_table_framed(page_current,page_size, url, start_date, end_date, timef
 def update_table_framed(page_current,page_size, url, start_date, end_date, timeframe, n_clicks, stations):
     return mupdate_table_framed(page_current,page_size, url, start_date, end_date, timeframe, n_clicks, stations, flask.request.headers.get('Referer') )
 
+@server.route('/data_science/thermo/file.csv')
+def thermo_csv():
+    parsed_query = urllib.parse.urlparse( flask.request.headers.get('Referer') )
+    pur = parse_url_params( parsed_query )
+    user = query_user(pur)
+    full_path = os.path.dirname(os.path.abspath(__file__))
+    owner_id = str(user.owner_id)
+    return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
 
-
+@server.route('/data_science/recti/file.csv')
+def recti_csv():
+    parsed_query = urllib.parse.urlparse( flask.request.headers.get('Referer') )
+    pur = parse_url_params( parsed_query )
+    user = query_user(pur)
+    full_path = os.path.dirname(os.path.abspath(__file__))
+    owner_id = str(user.owner_id)
+    return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
 
 if (__name__ == '__main__'):
     server.run(host='0.0.0.0')
