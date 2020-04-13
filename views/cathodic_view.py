@@ -43,7 +43,6 @@ def custom_layout():
         dcc.Dropdown(
         id='timeframes',
         options=[
-            {'label': '1 Minutos', 'value': '1Min'},
             {'label': '5 Minutos', 'value': '5Min'},
             {'label': '15 Minutos', 'value': '15Min'},
             {'label': '30 Minutos', 'value': '30Min'},
