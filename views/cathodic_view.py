@@ -139,12 +139,14 @@ def mupdate_table_framed(page_current,page_size, url, start_date, end_date, time
     data_graph = data_frame.groupby('Estación').resample(timeframe).mean()
     data_graph = data_graph.dropna()
     data_graph = data_graph.reset_index()
-    data_graph = data_graph[["Estación", "Fecha", "Voltaje Salida Tubo(V)", "Voltaje SHUNT(mV)",  "Corriente Tubo(A)" ]]  
+    #data_graph = data_graph[["Estación", "Fecha", "Voltaje Salida Tubo(V)", "Voltaje SHUNT(mV)",  "Corriente Tubo(A)" ]]  
     mode_str =''
     if 'thermo' in params:
         mode_str = 'thermo_csv'
+        data_graph = data_graph[["Estación", "Fecha", "Voltaje Salida Tubo(V)", "Voltaje SHUNT(mV)",  "Corriente Tubo(A)" ]]  
     if 'recti' in params:
         mode_str = 'recti_csv'
+        data_graph = data_graph[["Estación", "Fecha", "Voltaje Salida Tubo(V)", "Voltaje SHUNT(mV)",  "Corriente Tubo(A)", "Voltaje AC(V)", "Corriente AC(A)" ]] 
     full_path = os.path.dirname(os.path.abspath(__file__))  
 
     user = query_user(pur)
