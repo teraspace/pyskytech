@@ -38,7 +38,8 @@ def custom_layout():
     dcc.Dropdown(
         id='stations',
         multi=True,
-        clearable=False
+        clearable=False,
+        placeholder="Seleccione la(s) estacione(s) o dejar vacío para Todas..."
     ) ,
         dcc.Dropdown(
         id='timeframes',
