@@ -58,6 +58,8 @@ def history_events():
     data_incidents = query_incidents(request.args.to_dict(flat=True))
     data_report = pd.concat([data_historics, data_incidents])
     data_report = data_report.sort_index()
+    data_report['DATE_ENTRY']= pd.to_datetime(data_report['DATE_ENTRY']) 
+
     data_report.sort_values('DATE_ENTRY', inplace=True, ascending=False)
     column_keys = ['PLATE', 'INTERNAL_CODE', 'DATE_ENTRY','EVENT_NAME','VALUE','ADDRESS', 'X', 'Y', 'SPEED', 'ORIENTATION', 'BATTERY', 'SHEET']
     translaters = data_report['EVENT_NAME'].unique().tolist() + [x.lower() for x in column_keys]
@@ -87,6 +89,7 @@ def history_cathodics_recti():
     cathodics_recti = query_recti(req)
     data_report = pd.concat([cathodics_recti])
     data_report = data_report.sort_index()
+    data_report['HICAFEEN']= pd.to_datetime(data_report['HICAFEEN']) 
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
     column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
     translaters = [x.lower() for x in column_keys]
@@ -115,6 +118,7 @@ def history_cathodics_thermo():
     cathodics_thermo = query_thermo(req)
     data_report = pd.concat([cathodics_thermo])
     data_report = data_report.sort_index()
+    data_report['HICAFEEN']= pd.to_datetime(data_report['HICAFEEN']) 
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
     column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
     translaters = [x.lower() for x in column_keys]
@@ -160,6 +164,7 @@ def history_cathodics_daily():
     cathodics_daily = query_daily(req)
     data_report = pd.concat([cathodics_daily])
     data_report = data_report.sort_index()
+    data_report['HICAFEEN']= pd.to_datetime(data_report['HICAFEEN']) 
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
     column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
     translaters = [x.lower() for x in column_keys]
