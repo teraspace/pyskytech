@@ -61,6 +61,7 @@ def history_events():
     data_report['DATE_ENTRY']= pd.to_datetime(data_report['DATE_ENTRY']) 
 
     data_report.sort_values('DATE_ENTRY', inplace=True, ascending=False)
+    data_report['DATE_ENTRY'] = data_report['DATE_ENTRY'].dt.tz_localize('GMT').dt.tz_convert(user.time_zone)
     column_keys = ['PLATE', 'INTERNAL_CODE', 'DATE_ENTRY','EVENT_NAME','VALUE','ADDRESS', 'X', 'Y', 'SPEED', 'ORIENTATION', 'BATTERY', 'SHEET']
     translaters = data_report['EVENT_NAME'].unique().tolist() + [x.lower() for x in column_keys]
     data_report['EVENT_NAME'] = data_report['EVENT_NAME'].apply(lambda x: translate(x, translaters, user.locale))
