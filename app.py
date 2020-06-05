@@ -92,9 +92,9 @@ def history_cathodics_recti():
     data_report = data_report.sort_index()
     data_report['HICAFEEN']= pd.to_datetime(data_report['HICAFEEN']) 
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
-    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA','ON','OFF' ]
+    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA','HICAPDON','HICAPDOF' ]
     translaters = [x.lower() for x in column_keys]
-
+ 
     
     column_names = []
 
@@ -109,8 +109,8 @@ def history_cathodics_recti():
     #data_report.to_excel(full_path+'/history_cathodics_recti'+owner_id+'.xlsx', index=False)
     data_report.to_csv(full_path+'/history_cathodics_recti'+owner_id+'.csv', index=False)
     return send_from_directory(full_path, 'history_cathodics_recti'+owner_id+'.csv', as_attachment=True)
- 
-@server.route('/data_science/history_cathodics_thermo') 
+
+@server.route('/data_science/history_cathodics_thermo')
 def history_cathodics_thermo():
     print ('hello history_cathodics_thermo')
     total_time = time.time()
@@ -121,7 +121,7 @@ def history_cathodics_thermo():
     data_report = data_report.sort_index()
     data_report['HICAFEEN']= pd.to_datetime(data_report['HICAFEEN']) 
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
-    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA','ON','OFF' ]
+    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA','HICAPDON','HICAPDOF' ]
     translaters = [x.lower() for x in column_keys]
 
     
