@@ -92,7 +92,7 @@ def history_cathodics_recti():
     data_report = data_report.sort_index()
     data_report['HICAFEEN']= pd.to_datetime(data_report['HICAFEEN']) 
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
-    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
+    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA','HICAPDON','HICAPDOF' ]
     translaters = [x.lower() for x in column_keys]
 
     
@@ -121,7 +121,7 @@ def history_cathodics_thermo():
     data_report = data_report.sort_index()
     data_report['HICAFEEN']= pd.to_datetime(data_report['HICAFEEN']) 
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
-    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA' ]
+    column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA','HICAPDON','HICAPDOF' ]
     translaters = [x.lower() for x in column_keys]
 
     
