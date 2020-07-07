@@ -1,5 +1,5 @@
 import os
-os.environ["PROJ_LIB"] = "E:\Anaconda3\Library\share"; #fixr
+#os.environ["PROJ_LIB"] = "E:\Anaconda3\Library\share"; #fixr
 
 import cx_Oracle
 import pandas as pd
