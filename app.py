@@ -216,7 +216,7 @@ def history_events_pdf():
     ax.set_xlim(minx - .2, maxx + .2) # added/substracted value is to give some margin around total bounds
     ax.set_ylim(miny - .2, maxy + .2)
     print(data_geometry.crs.to_string())
-    ctx.add_basemap(ax, crs=data_report.crs.to_string())
+    ctx.add_basemap(ax, crs=data_geometry.crs.to_string())
     ax.set_title("WGS84 (lat/lon)")
     ax.get_figure().savefig('history_events'+owner_id+'.png')
     table = generate_html(data_report, 'history_events'+owner_id+'.png')
