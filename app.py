@@ -221,11 +221,11 @@ def history_events_pdf():
     ax.get_figure().savefig('history_events'+owner_id+'.png')
     table = generate_html(data_report, 'history_events'+owner_id+'.png')
     ret = generate_pdf(table)
-    with open('history_events'+owner_id+'.html', 'w') as w:
-        w.write(table) 
+    with open('history_events'+owner_id+'.pdf', 'wb') as w:
+        w.write(ret) 
    
 
-    return send_from_directory(full_path, 'history_events'+owner_id+'.html', as_attachment=True)
+    return send_from_directory(full_path, 'history_events'+owner_id+'.pdf', as_attachment=True)
 
 @server.route('/data_science/history_cathodics_recti')
 def history_cathodics_recti():
