@@ -220,7 +220,7 @@ def history_events_pdf():
     ax.set_title("WGS84 (lat/lon)")
     ax.get_figure().savefig('history_events'+owner_id+'.png')
     table = generate_html(data_report, 'history_events'+owner_id+'.png')
-  #  ret = generate_pdf(table)
+    ret = generate_pdf(table)
     with open('history_events'+owner_id+'.html', 'w') as w:
         w.write(table) 
    
