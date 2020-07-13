@@ -252,7 +252,7 @@ def history_cathodics_recti():
 
     full_path = os.path.dirname(os.path.abspath(__file__))    
     #data_report.to_excel(full_path+'/history_cathodics_recti'+owner_id+'.xlsx', index=False)
-    data_report.replace('\r','', regex=True).to_csv(full_path+'/history_cathodics_recti'+owner_id+'.csv', index=False)
+    data_report.replace('\n','', regex=True).to_csv(full_path+'/history_cathodics_recti'+owner_id+'.csv', index=False)
     return send_from_directory(full_path, 'history_cathodics_recti'+owner_id+'.csv', as_attachment=True)
 
 @server.route('/data_science/history_cathodics_thermo')
