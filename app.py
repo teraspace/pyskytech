@@ -294,7 +294,7 @@ def history_cathodics_thermo():
     #data_report.to_excel(full_path+'/history_cathodics_thermo'+owner_id+'.xlsx', index=False)
     #print("--- %s creating file xlsx1' ---" % (time.time() - start_time))
     start_time = time.time()
-    data_report.replace('\n','', regex=True)to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
+    data_report.replace('\n','', regex=True).to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
     print("--- %s creating file csv' ---" % (time.time() - start_time))
     #start_time = time.time()
    # df_to_excel(data_report,full_path+'/history_cathodics_thermo'+owner_id+'.xlsx',sheet_name='history_cathodics_thermo')
