@@ -241,8 +241,8 @@ def history_cathodics_recti():
     translaters = [x.lower() for x in column_keys]
  
   
-    data_report['HICAPDON'] = np.where((len(data_report['HICAPDON']) > 4),  'HICAPDON', '0') 
-    data_report['HICAPDOF'] = np.where((len(data_report['HICAPDOF']) > 4),  'HICAPDOF', '0') 
+    data_report['HICAPDON'] = np.where(len(data_report['HICAPDON']) > 4,  'HICAPDON', '0') 
+    data_report['HICAPDOF'] = np.where(len(data_report['HICAPDOF']) > 4,  'HICAPDOF', '0') 
 
 
     
