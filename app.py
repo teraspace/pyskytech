@@ -241,10 +241,10 @@ def history_cathodics_recti():
     translaters = [x.lower() for x in column_keys]
  
   
-  
-    data_report = data_report.assign(HICAPDOF=data_report.HICAPDOF.map(lambda x: '0' if len(x)>=5 else x)) 
-    data_report = data_report.assign(HICAPDON=data_report.HICAPDON.map(lambda x: '0' if len(x)>=5 else x)) 
-    
+
+    data_report = df.HICAPDOF.apply(lambda x: '0'  if len(x)>=5 else x)
+    data_report = df.HICAPDON.apply(lambda x: '0'  if len(x)>=5 else x)
+
     column_names = []
 
     for c in column_keys:
