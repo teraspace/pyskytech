@@ -241,9 +241,9 @@ def history_cathodics_recti():
     translaters = [x.lower() for x in column_keys]
  
 
-    data_report['HICAPDOF'] = data_report['HICAPDOF'].mask(len(data_report.HICAPDOF) >= 5,'0')
+    data_report['HICAPDOF'] = data_report['HICAPDOF'].mask(len(data_report['HICAPDOF']) >= 5,'0')
 
-    data_report['HICAPDON'] = data_report['HICAPDON'].mask(len(data_report.HICAPDON) >= 5,'0')
+    data_report['HICAPDON'] = data_report['HICAPDON'].mask(len(data_report['HICAPDON']) >= 5,'0')
     column_names = []
 
     for c in column_keys:
