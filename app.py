@@ -240,7 +240,7 @@ def history_cathodics_recti():
     column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA','HICAPDON','HICAPDOF' ]
     translaters = [x.lower() for x in column_keys]
  
-    data_report.loc[len(data_report.HICAPDOF) >= 5, 'HICAPDOF'] = '0'
+
     data_report['HICAPDOF'] = data_report['HICAPDOF'].mask(len(data_report.HICAPDOF) >= 5,'0')
 
     data_report['HICAPDON'] = data_report['HICAPDON'].mask(len(data_report.HICAPDON) >= 5,'0')
