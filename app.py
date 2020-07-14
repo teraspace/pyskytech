@@ -252,7 +252,7 @@ def history_cathodics_recti():
 
     full_path = os.path.dirname(os.path.abspath(__file__))    
     #data_report.to_excel(full_path+'/history_cathodics_recti'+owner_id+'.xlsx', index=False)
-    data_report.replace('\n','', regex=True).replace(r'[1-9]*<','0',regex=True).to_csv(full_path+'/history_cathodics_recti'+owner_id+'.csv', index=False)
+    data_report.replace('\n','', regex=True).replace(r'^.{6,}$','0',regex=True).to_csv(full_path+'/history_cathodics_recti'+owner_id+'.csv', index=False)
     return send_from_directory(full_path, 'history_cathodics_recti'+owner_id+'.csv', as_attachment=True)
 
 @server.route('/data_science/history_cathodics_thermo')
@@ -285,7 +285,7 @@ def history_cathodics_thermo():
     #data_report.to_excel(full_path+'/history_cathodics_thermo'+owner_id+'.xlsx', index=False)
     #print("--- %s creating file xlsx1' ---" % (time.time() - start_time))
     start_time = time.time()
-    data_report.replace('\n','', regex=True).replace(r'[1-9]*<','0',regex=True).to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
+    data_report.replace('\n','', regex=True).replace(r'^.{6,}$','0',regex=True).to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
     print("--- %s creating file csv' ---" % (time.time() - start_time))
     #start_time = time.time()
    # df_to_excel(data_report,full_path+'/history_cathodics_thermo'+owner_id+'.xlsx',sheet_name='history_cathodics_thermo')
