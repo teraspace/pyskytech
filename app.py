@@ -240,7 +240,8 @@ def history_cathodics_recti():
     column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA','HICAPDON','HICAPDOF' ]
     translaters = [x.lower() for x in column_keys]
  
-    
+    data_report.loc[(len(data_report.HICAPDOF) >= 5),'HICAPDOF']='0'
+    data_report.loc[(len(data_report.HICAPDON) >= 5),'HICAPDON']='0'
     column_names = []
 
     for c in column_keys:
@@ -252,8 +253,16 @@ def history_cathodics_recti():
 
     full_path = os.path.dirname(os.path.abspath(__file__))    
     #data_report.to_excel(full_path+'/history_cathodics_recti'+owner_id+'.xlsx', index=False)
-    data_report.replace('\n','', regex=True).replace(r'[1-9]*<','0',regex=True).replace(r'[1-9]*&','0',regex=True).to_csv(full_path+'/history_cathodics_recti'+owner_id+'.csv', index=False)
+    data_report.replace('\n','', regex=True).to_csv(full_path+'/history_cathodics_recti'+owner_id+'.csv', index=False)
     return send_from_directory(full_path, 'history_cathodics_recti'+owner_id+'.csv', as_attachment=True)
+
+
+def maybe_replace(word, length=4):
+  if len(word) == length:
+    return 'something'
+  else:
+    return word
+
 
 @server.route('/data_science/history_cathodics_thermo')
 def history_cathodics_thermo():
@@ -268,8 +277,8 @@ def history_cathodics_thermo():
     data_report.sort_values('HICAFEEN', inplace=True, ascending=False)
     column_keys = [ 'STATION_NAME','STATION_TYPE','TYPE_LINE','HICAFEEN','HICAVOSA','HICAVOSH','HICACOTU','HICAVOAC','HICACOAC','HICAESTA','HICAPDON','HICAPDOF' ]
     translaters = [x.lower() for x in column_keys]
-
-    
+    data_report.loc[(len(data_report.HICAPDOF) >= 5),'HICAPDOF']='0'
+    data_report.loc[(len(data_report.HICAPDON) >= 5),'HICAPDON']='0'
     column_names = []
 
     for c in column_keys:
@@ -285,7 +294,7 @@ def history_cathodics_thermo():
     #data_report.to_excel(full_path+'/history_cathodics_thermo'+owner_id+'.xlsx', index=False)
     #print("--- %s creating file xlsx1' ---" % (time.time() - start_time))
     start_time = time.time()
-    data_report.replace('\n','', regex=True).replace(r'[1-9]*<','0',regex=True).replace(r'[1-9]*&','0',regex=True).to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
+    data_report.replace('\n','', regex=True)to_csv(full_path+'/history_cathodics_thermo'+owner_id+'.csv', index=False)
     print("--- %s creating file csv' ---" % (time.time() - start_time))
     #start_time = time.time()
    # df_to_excel(data_report,full_path+'/history_cathodics_thermo'+owner_id+'.xlsx',sheet_name='history_cathodics_thermo')
@@ -294,7 +303,7 @@ def history_cathodics_thermo():
 
     print("--- %s total time' ---" % (time.time() - total_time))
 
-
+    
     return send_from_directory(full_path, 'history_cathodics_thermo'+owner_id+'.csv', as_attachment=True)
 
 
