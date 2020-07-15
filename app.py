@@ -121,7 +121,7 @@ def history_events():
     data_incidents = query_incidents(request.args.to_dict(flat=True))
     data_report = pd.concat([data_historics, data_incidents])
     data_report = data_report.sort_index()
-    data_report['DATE_ENTRY']= pd.to_datetime(data_report['DATE_ENTRY']) 
+    data_report['DATE_ENTRY']= pd.to_datetime(data_report['DATE_ENTRY'], dayfirst=True) 
 
     data_report.sort_values('DATE_ENTRY', inplace=True, ascending=False)
     data_report['DATE_ENTRY'] = data_report['DATE_ENTRY'].dt.tz_localize('GMT').dt.tz_convert(user.time_zone)
