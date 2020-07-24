@@ -210,7 +210,7 @@ def history_events_pdf():
     print(data_geometry.head(2))
     dfx =  data_geometry
 
-    geo_df = dfx.groupby(['PLATE'])['geometry'].apply(lambda x: LineString(x.tolist()))
+    geo_df = dfx.groupby(['PLATE'])['GEOMETRY'].apply(lambda x: LineString(x.tolist()))
     geo_df = geopandas.GeoDataFrame(geo_df, geometry='geometry')
 
     fig, myax = plt.subplots(figsize=(8,8))
