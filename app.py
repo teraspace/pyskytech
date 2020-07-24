@@ -200,14 +200,14 @@ def history_events_pdf():
     #data_report.to_csv(full_path+'/history_events'+owner_id+'.csv', index=False)
     data_geometry['X'] = data_geometry['X'].astype(float)
     data_geometry['Y'] = data_geometry['Y'].astype(float)
-    print(data_geometry.head(2))
+
     
     data_geometry['GEOMETRY'] = data_geometry[['X', 'Y']].values.tolist()
 
 
     data_geometry['GEOMETRY'] = data_geometry['GEOMETRY'].apply(Point)
     data_geometry = geopandas.GeoDataFrame(data_geometry, geometry='GEOMETRY', crs='EPSG:4326')
-
+    print(data_geometry.head(2))
     dfx =  data_geometry
 
     geo_df = dfx.groupby(['PLATE'])['geometry'].apply(lambda x: LineString(x.tolist()))
