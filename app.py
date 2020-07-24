@@ -227,7 +227,7 @@ def history_events_pdf():
 
     myax.set_xlim(minx - .1, maxx + .1) # added/substracted value is to give some margin around total bounds
     myax.set_ylim(miny - .1, maxy + .1)
-    ctx.add_basemap(myax, crs=df.crs.to_string())
+    ctx.add_basemap(myax, crs=data_geometry.crs.to_string())
 
     for i, (x, y, label) in enumerate(zip(data_geometry.geometry.x, data_geometry.geometry.y, data_geometry.PERMANENCE)):
         if str(label).strip() != 'nan':
