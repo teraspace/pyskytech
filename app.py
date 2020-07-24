@@ -36,6 +36,7 @@ import plotly.graph_objects as go
 from shapely.geometry import Point, LineString
 import pandas as pd
 import pdfkit
+import matplotlib.pyplot as plt
 #config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
 class HeadlessPdfKit(pdfkit.PDFKit):
