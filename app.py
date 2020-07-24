@@ -154,7 +154,8 @@ def get_image_file_as_base64_data(FILEPATH):
 
 def generate_html(dataframe, image):
   rows = [x.to_list() for x in dataframe.iloc]
-  table = '<img src=data:image/png;base64,' + get_image_file_as_base64_data(image) +  ' />'
+  table = '<html><head> <meta http-equiv="Content-type" content="text/html; charset=utf-8" /> <meta name="pdfkit-page-size" content="Legal"/> <meta name="pdfkit-orientation" content="Landscape"/> </head><body>'
+  table += '<img src=data:image/png;base64,' + get_image_file_as_base64_data(image) +  ' />'
   table += "<table>"
   table+= "".join(["<th>"+x+"</th>"  for x in dataframe.columns])
   rows=rows[1:]
@@ -163,7 +164,7 @@ def generate_html(dataframe, image):
     for cell in row:
       table+= "".join(["<td>"+str(cell)+"</td>"])
     table+= "</tr>" + "\n"
-  table+="</table><br>"
+  table+="</table><br></body></html>"
 
   return table
 
