@@ -337,12 +337,12 @@ def history_permanence():
     print ('hello history_permanence')
     req = request.args.to_dict(flat=True)
     user = query_user(req)
-    permanence = query_permanence(req)
+    permanence = query_history_permanence(req)
     data_report = pd.concat([permanence])
     data_report = data_report.sort_index()
     data_report['DATE_ENTRY']= pd.to_datetime(data_report['DATE_ENTRY']) 
     data_report.sort_values('DATE_ENTRY', inplace=True, ascending=False)
-    column_keys = [ 'PLATE','DATE_ENTRY','SPEED','ADDRESS','ZONE','PERMANENCE','EVENT_HOUR','X','Y','SHEET','INTERNAL_CODE','VALUE' ]
+    column_keys = ['PLATE', 'INTERNAL_CODE', 'DATE_ENTRY','EVENT_NAME','VALUE','ADDRESS', 'X', 'Y', 'SPEED', 'ORIENTATION', 'BATTERY', 'SHEET', 'PERMANENCE']
     translaters = [x.lower() for x in column_keys]
 
 
