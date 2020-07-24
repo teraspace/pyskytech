@@ -183,7 +183,7 @@ def history_events_pdf():
     
     data_report.sort_values('DATE_ENTRY', inplace=True, ascending=False)
     data_report['DATE_ENTRY'] = data_report['DATE_ENTRY'].dt.tz_localize('GMT')
-    column_keys = ['PLATE', 'INTERNAL_CODE', 'DATE_ENTRY','EVENT_NAME','VALUE','ADDRESS', 'X', 'Y', 'SPEED', 'ORIENTATION', 'BATTERY', 'SHEET']
+    column_keys = ['PLATE', 'INTERNAL_CODE', 'DATE_ENTRY','EVENT_NAME','VALUE','ADDRESS', 'X', 'Y', 'SPEED', 'ORIENTATION', 'BATTERY', 'SHEET', 'PERMANENCE']
     translaters = data_report['EVENT_NAME'].unique().tolist() + [x.lower() for x in column_keys]
     data_report['EVENT_NAME'] = data_report['EVENT_NAME'].apply(lambda x: translate(x, translaters, user.locale))
   
