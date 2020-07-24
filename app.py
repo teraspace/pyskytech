@@ -208,17 +208,34 @@ def history_events_pdf():
     data_geometry['GEOMETRY'] = data_geometry['GEOMETRY'].apply(Point)
     data_geometry = geopandas.GeoDataFrame(data_geometry, geometry='GEOMETRY', crs='EPSG:4326')
 
+    dfx =  data_geometry
 
-    #data_geometry = data_geometry.to_crs(EPSG=4326)
-    ax = data_geometry.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
+    geo_df = dfx.groupby(['PLATE'])['geometry'].apply(lambda x: LineString(x.tolist()))
+    geo_df = geopandas.GeoDataFrame(geo_df, geometry='geometry')
+
+    fig, myax = plt.subplots(figsize=(8,8))
+    geo_df.plot(ax=myax,  color='black',  linestyle='-', marker='o', linewidth=3, alpha=0.3)
+    data_geometry.plot(ax=myax,  color='yellow',  marker='o')
+
+
+    
+    data_geometry.head(1).plot(ax=myax, color='red',  marker='x', markersize=400)
+    data_geometry.tail(1).plot(ax=myax, color='green',  marker='x', markersize=400)
+
     minx, miny, maxx, maxy = data_geometry.total_bounds
 
-    ax.set_xlim(minx - .2, maxx + .2) # added/substracted value is to give some margin around total bounds
-    ax.set_ylim(miny - .2, maxy + .2)
-    print(data_geometry.crs.to_string())
-    ctx.add_basemap(ax, crs=data_geometry.crs.to_string())
-    ax.set_title("WGS84 (lat/lon)")
-    ax.get_figure().savefig('history_events'+owner_id+'.png')
+    myax.set_xlim(minx - .1, maxx + .1) # added/substracted value is to give some margin around total bounds
+    myax.set_ylim(miny - .1, maxy + .1)
+    ctx.add_basemap(myax, crs=df.crs.to_string())
+
+    for i, (x, y, label) in enumerate(zip(data_geometry.geometry.x, data_geometry.geometry.y, data_geometry.PERMANENCE)):
+        if str(label).strip() != 'nan':
+            myax.annotate(label, xy=(x, y), xytext=(-15, 1), textcoords="offset points")
+
+
+
+    myax.set_title("WGS84 (lat/lon)")
+    myax.get_figure().savefig('history_events'+owner_id+'.png')
     table = generate_html(data_report, 'history_events'+owner_id+'.png')
     ret = generate_pdf(table)
     with open('history_events'+owner_id+'.pdf', 'wb') as w:
