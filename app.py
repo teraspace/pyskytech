@@ -33,7 +33,7 @@ from werkzeug.serving import run_simple
 import urllib.parse
 import plotly.graph_objects as go
 
-from shapely.geometry import Point
+from shapely.geometry import Point, LineString
 import pandas as pd
 import pdfkit
 #config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
