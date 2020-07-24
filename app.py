@@ -337,21 +337,23 @@ def history_permanence():
     print ('hello history_permanence')
     req = request.args.to_dict(flat=True)
     user = query_user(req)
-    permanence = query_permanence(req)
-    data_report = pd.concat([permanence])
+    data_historics = query_historics(request.args.to_dict(flat=True))
+    data_incidents = query_incidents(request.args.to_dict(flat=True))
+    data_report = pd.concat([data_historics, data_incidents])
     data_report = data_report.sort_index()
-    data_report['DATE_ENTRY']= pd.to_datetime(data_report['DATE_ENTRY']) 
+    data_report['DATE_ENTRY']= pd.to_datetime(data_report['DATE_ENTRY'], dayfirst=True) 
+
     data_report.sort_values('DATE_ENTRY', inplace=True, ascending=False)
-    column_keys = [ 'PLATE','DATE_ENTRY','SPEED','ADDRESS','ZONE','PERMANENCE','EVENT_HOUR','X','Y','SHEET','INTERNAL_CODE','VALUE' ]
-    translaters = [x.lower() for x in column_keys]
-
-
+    data_report['DATE_ENTRY'] = data_report['DATE_ENTRY'].dt.tz_localize('GMT').dt.tz_convert(user.time_zone)
+    column_keys = ['PLATE', 'INTERNAL_CODE', 'DATE_ENTRY','EVENT_NAME','VALUE','ADDRESS', 'X', 'Y', 'SPEED', 'ORIENTATION', 'BATTERY', 'SHEET', 'PERMANENCE']
+    translaters = data_report['EVENT_NAME'].unique().tolist() + [x.lower() for x in column_keys]
+    data_report['EVENT_NAME'] = data_report['EVENT_NAME'].apply(lambda x: translate(x, translaters, user.locale))
     
     column_names = []
 
     for c in column_keys:
-        column_names.append(translate(c, translaters, user.locale))
-
+        column_names.append(translate(c.lower(), translaters, user.locale))
+    
     data_report = data_report[column_keys]
     data_report.columns = column_names
     owner_id = str(user.owner_id)
